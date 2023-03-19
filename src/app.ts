@@ -7,11 +7,8 @@ import cookieParser from 'cookie-parser';
 import connectToDatabase from './config/config';
 import { allowedMethods } from './middleware/methods.middleware';
 import { setHeaders } from './middleware/headers.middleware';
-import Logger from './utils/Logger';
-
-const { API_PORT } = process.env;
-
-const SERVER_PORT = process.env.API_PORT ? Number(process.env.API_PORT) : 9000;
+import userRouter from './routes/user.route';
+import { getStatus } from './middleware/status.middleware';
 
 // Create a new instance of the Express application
 const app = express();
@@ -29,11 +26,18 @@ app.use(compression());
 
 /** API Rules */
 app.use(setHeaders);
+app.use(getStatus);
 // Allow only specific HTTP methods for certain routes
 app.use(allowedMethods);
 
 /** Healthcheck */
-app.get('/ping', (req, res, next) => res.status(200).json({ message: 'WELCOME TO THE API' }));
+app.get('/api/v1/ping', (req, res, next) =>
+    res.status(200).json({ message: 'WELCOME TO THE API' })
+);
+
+/**APP ROUTES */
+
+app.use('/api/v1/user', userRouter);
 
 /** Error handling */
 
