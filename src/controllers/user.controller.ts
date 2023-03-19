@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { registerUser } from './../services/user.service';
+import { registerUserService, verifyEmailService } from './../services/user.service';
 
-const userRegistration = async (req: Request, res: Response, next: NextFunction) => {
+const userRegistration = async (req: Request, res: Response) => {
     try {
         const { email, password, firstName, lastName } = req.body;
 
-        const result = await registerUser({ email, password, firstName, lastName });
+        const result = await registerUserService({ email, password, firstName, lastName });
 
         const { status, error, message } = result;
 
@@ -28,8 +28,25 @@ const userRegistration = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-const userVerification = (req: Request, res: Response, next: NextFunction) => {
-    res.send('VERIFY');
+export const userVerification = async (req: Request, res: Response) => {
+    const { id, otp } = req.body;
+    try {
+        const result = await verifyEmailService(id, otp);
+
+        const { status, error, message } = result;
+
+        if (error) {
+            return res.status(status).json({
+                error,
+                message
+            });
+        }
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: true, message: 'Internal server error.' });
+    }
 };
 
 const userAuthentication = (req: Request, res: Response, next: NextFunction) => {
