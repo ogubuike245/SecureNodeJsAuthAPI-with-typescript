@@ -4,7 +4,7 @@ import User from '../models/user.model';
 import { generateOneTimePassword } from '../utils/helpers';
 import { sendVerificationEmail } from '../utils/sendmail';
 
-export const registerUser = async function (userData: any) {
+export const registerUserService = async function (userData: any) {
     try {
         const { email, password, firstName, lastName } = userData;
 
@@ -62,4 +62,68 @@ export const registerUser = async function (userData: any) {
     }
 };
 
-export default { registerUser };
+export const verifyEmailService = async function (id: any, otp: any) {
+    try {
+        if (!otp) {
+            return {
+                error: true,
+                message: 'Please input OTP.',
+                status: 400
+            };
+        }
+
+        const existingUser = await User.findById(id);
+
+        if (!existingUser) {
+            return {
+                error: true,
+                message: 'User does not exist.',
+                status: 400
+            };
+        }
+
+        const existingToken = await Token.findOne({
+            user: existingUser?._id,
+            generatedOTP: otp
+        });
+        console.log(existingToken);
+
+        if (!existingToken) {
+            return {
+                error: true,
+                message: 'Token not found or has expired.',
+                status: 400
+            };
+        }
+
+        const isValidOTP = await bcrypt.compare(otp, existingToken.value);
+
+        if (!isValidOTP) {
+            return {
+                error: true,
+                message: 'Invalid OTP.',
+                status: 400
+            };
+        }
+
+        await User.updateOne({ _id: existingUser._id }, { $set: { isVerified: true } });
+
+        await Token.deleteOne({ user: existingUser._id, generatedOTP: otp });
+
+        return {
+            success: true,
+            message: 'Email verification successful! You can now log in to your account.',
+            redirect: '/',
+            status: 200
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            error: true,
+            message: 'Internal server error.',
+            status: 500
+        };
+    }
+};
+
+export default { registerUserService, verifyEmailService };
