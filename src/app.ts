@@ -1,17 +1,23 @@
 // Import necessary packages
-import express from 'express';
+import express, { Express } from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+
+// import custom config files / utilities
 import connectToDatabase from './config/config';
+
+// import middleware files
 import { allowedMethods } from './middleware/methods.middleware';
 import { setHeaders } from './middleware/headers.middleware';
-import userRouter from './routes/user.route';
 import { getStatus } from './middleware/status.middleware';
 
+// import app routes
+import userRouter from './routes/user.route';
+
 // Create a new instance of the Express application
-const app = express();
+const app: Express = express();
 
 // Define middleware functions and serve static files
 app.use(express.static('./public'));
@@ -30,13 +36,10 @@ app.use(getStatus);
 // Allow only specific HTTP methods for certain routes
 app.use(allowedMethods);
 
-/** Healthcheck */
-app.get('/api/v1/ping', (req, res, next) =>
-    res.status(200).json({ message: 'WELCOME TO THE API' })
-);
+/** Ping API to confirm it is working */
+app.get('/api/v1/ping', (_, res) => res.status(200).json({ message: 'WELCOME TO THE API' }));
 
 /**APP ROUTES */
-
 app.use('/api/v1/user', userRouter);
 
 /** Error handling */
