@@ -11,11 +11,11 @@ const connectToDatabase = async (app: any) => {
         // Connecting to the MongoDB database using the MONGO_DB_URI and some options
         await mongoose.set('strictQuery', false).connect(MONGO_DB_URI!);
 
-        Logger.info('CONNECTED TO MONGODB DATABASE');
+        Logger.info('[CONNECTED TO MONGODB DATABASE]');
 
         // Starting the app only after the database connection is established
         app.listen(Number(API_PORT) || 9000, () => {
-            Logger.info(`BACKEND SERVER RUNNING ON PORT : ${API_PORT} `);
+            Logger.info(`[BACKEND SERVER RUNNING ON PORT] : ${API_PORT} `);
         });
     } catch (error) {
         // Logging any errors that occur during the database connection or app start-up
