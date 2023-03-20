@@ -14,7 +14,8 @@ import { setHeaders } from './middleware/headers.middleware';
 import { getStatus } from './middleware/status.middleware';
 
 // import app routes
-import userRouter from './routes/user.route';
+import authRouter from './routes/auth.route';
+import userRouter from './routes/user.routes';
 
 // Create a new instance of the Express application
 const app: Express = express();
@@ -40,6 +41,7 @@ app.use(allowedMethods);
 app.get('/api/v1/ping', (_, res) => res.status(200).json({ message: 'WELCOME TO THE API' }));
 
 /**APP ROUTES */
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
 
 /** Error handling */
